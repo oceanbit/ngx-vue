@@ -5,10 +5,9 @@ import {
   ComponentFactoryResolver,
   Input,
   OnChanges,
-  SimpleChanges
+  SimpleChanges, ViewRef
 } from '@angular/core';
 import {computed, reactive, readonly, ref} from '@vue/reactivity';
-import {SetupService} from './setup.service';
 
 type CompClass = new (...args: any[]) => any;
 type CompClassInst<T extends CompClass> = InstanceType<T>;
@@ -33,7 +32,9 @@ function Setup<SetupReturn, T extends CompClass>(setupFn: (props: any, tick: () 
           this.__setVariables(this.__data.value);
         };
 
-        const componentFactoryResolver: ComponentFactoryResolver = args[0];
+        const componentFactoryResolver: ComponentFactoryResolver = args.find(arg => arg instanceof ComponentFactoryResolver);
+
+        this.__cd = args.find(arg => !!arg.detectChanges);
 
         const properties = componentFactoryResolver.resolveComponentFactory(this.constructor as any);
 
@@ -63,6 +64,7 @@ function Setup<SetupReturn, T extends CompClass>(setupFn: (props: any, tick: () 
         });
 
         this.__detectChanges();
+        this.__cd.detectChanges();
       }
     };
   };
@@ -91,9 +93,8 @@ export class AppComponent {
   test: any;
   addToPlus: any;
 
-  // TODO: Migrate to use service to DI into this:
-  // https://stackoverflow.com/a/52667101/4148154
-  constructor(private componentFactoryResolver: ComponentFactoryResolver) {
+  // MUST have these two items in your constructor, sadly :(
+  constructor(private componentFactoryResolver: ComponentFactoryResolver, private cd: ChangeDetectorRef) {
   }
 }
 
@@ -108,7 +109,7 @@ export class AppComponent {
 })
 @Component({
   selector: 'child-root',
-  template: `<h1>{{newNum}}</h1><button (click)="printData()">Check the console</button>`,
+  template: `<h1>{{newNum}}</h1> `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ChildComponent implements OnChanges {
@@ -122,12 +123,5 @@ export class ChildComponent implements OnChanges {
 
   // This MUST be here, otherwise it won't call on parent directive
   ngOnChanges(changes: SimpleChanges): void {
-    setTimeout(() => {
-      this.cd.detectChanges();
-    }, 0);
-  }
-
-  printData() {
-    console.log(this.__data);
   }
 }
