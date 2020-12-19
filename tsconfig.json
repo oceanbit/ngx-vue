@@ -18,7 +18,9 @@
     "module": "es2020",
     "lib": [
       "es2018",
-      "dom"
+      "dom",
+      "es2019.symbol",
+      "es2020.symbol.wellknown"
     ]
   },
   "angularCompilerOptions": {
