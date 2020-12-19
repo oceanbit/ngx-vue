@@ -1,20 +1,36 @@
-import {ChangeDetectionStrategy, Component, ComponentFactoryResolver, Input} from '@angular/core';
-import {reactive, Ref, ref, UnwrapRef} from '@vue/reactivity';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ComponentFactoryResolver,
+  Input,
+  OnChanges,
+  SimpleChanges
+} from '@angular/core';
+import {computed, reactive, readonly, ref} from '@vue/reactivity';
 
 type CompClass = new (...args: any[]) => any;
-type CompClassInst<T extends CompClass> = keyof InstanceType<T>;
+type CompClassInst<T extends CompClass> = InstanceType<T>;
 type CompProp<T extends CompClass> = keyof CompClassInst<T>;
-type CompProps<T extends CompClass> = Record<CompClassInst<T>, CompClassInst<T>[CompProp<T>]>;
-
-// From `@vue/reactivity`
-type UnwrapNestedRefs<T> = T extends Ref ? T : UnwrapRef<T>;
+type CompProps<T extends CompClass> = Record<CompProp<T>, CompClassInst<T>[CompProp<T>]>;
 
 // tslint:disable-next-line:typedef max-line-length
-function Setup<T extends CompClass, SetupReturn = any>(setupFn: (props: UnwrapNestedRefs<CompProps<T>>, tick: () => void) => SetupReturn) {
+function Setup<SetupReturn, T extends CompClass>(setupFn: (props: any, tick: () => void) => SetupReturn) {
   return (constructor: T) => {
     return class extends constructor {
+
       constructor(...args: any[]) {
         super(...args);
+
+        this.__setVariables = (data: any) => {
+          Object.keys(data).forEach(key => {
+            this[key] = data[key];
+          });
+        };
+
+        this.__detectChanges = () => {
+          this.__setVariables(this.__data.value);
+        };
 
         const componentFactoryResolver: ComponentFactoryResolver = args[0];
 
@@ -27,31 +43,33 @@ function Setup<T extends CompClass, SetupReturn = any>(setupFn: (props: UnwrapNe
             return curr;
           }, {} as CompProps<T>);
 
-        const inputPropsReactive = reactive(inputProps);
+        this.__inputPropsReactive = reactive(inputProps);
 
         // tslint:disable-next-line:variable-name
-        const __data = ref({});
+        this.__data = ref({});
 
-        const setVariables = (data: any) => {
-          Object.keys(data).forEach(key => {
-            this[key] = data[key];
-          });
-        };
+        this.__data.value = setupFn(readonly(this.__inputPropsReactive), this.__detectChanges);
 
-        const detectChanges = () => {
-          setVariables(__data.value);
-          // cd.detectChanges();
-        };
+        this.__detectChanges();
+      }
 
-        __data.value = setupFn(inputPropsReactive, detectChanges);
+      // tslint:disable-next-line:typedef
+      ngOnChanges(...args: any[]) {
+        super.ngOnChanges(...args);
+        const changes: SimpleChanges = args[0];
+        Object.keys(changes).forEach(changeKey => {
+          this.__inputPropsReactive[changeKey] = changes[changeKey].currentValue;
+        });
 
-        detectChanges();
+        setInterval(() => {
+          this.__detectChanges();
+        }, 0);
       }
     };
   };
 }
 
-@Setup<typeof AppComponent>((props, detectChanges) => {
+@Setup((_, detectChanges) => {
   const test = ref(12);
 
   const addToPlus = (): void => {
@@ -74,11 +92,36 @@ export class AppComponent {
   test: any;
   addToPlus: any;
 
-  @Input() testing = '';
+  // TODO: Migrate to use service to DI into this:
+  // https://stackoverflow.com/a/52667101/4148154
+  constructor(private componentFactoryResolver: ComponentFactoryResolver) {
+  }
+}
+
+@Setup((props: { number: number }) => {
+  const newNum = computed(() => {
+    return props.number * 10;
+  });
+
+  return {
+    newNum
+  };
+})
+@Component({
+  selector: 'child-root',
+  template: `<h1>{{newNum}}</h1>`,
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class ChildComponent implements OnChanges {
+  @Input() number = 0;
+  newNum: any;
 
   // TODO: Migrate to use service to DI into this:
   // https://stackoverflow.com/a/52667101/4148154
   constructor(private componentFactoryResolver: ComponentFactoryResolver) {
   }
 
+  // This MUST be here, otherwise it won't call on parent directive
+  ngOnChanges(changes: SimpleChanges): void {
+  }
 }
