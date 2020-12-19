@@ -8,6 +8,7 @@ import {
   SimpleChanges
 } from '@angular/core';
 import {computed, reactive, readonly, ref} from '@vue/reactivity';
+import {SetupService} from './setup.service';
 
 type CompClass = new (...args: any[]) => any;
 type CompClassInst<T extends CompClass> = InstanceType<T>;
@@ -61,9 +62,7 @@ function Setup<SetupReturn, T extends CompClass>(setupFn: (props: any, tick: () 
           this.__inputPropsReactive[changeKey] = changes[changeKey].currentValue;
         });
 
-        setInterval(() => {
-          this.__detectChanges();
-        }, 0);
+        this.__detectChanges();
       }
     };
   };
@@ -109,7 +108,7 @@ export class AppComponent {
 })
 @Component({
   selector: 'child-root',
-  template: `<h1>{{newNum}}</h1>`,
+  template: `<h1>{{newNum}}</h1><button (click)="printData()">Check the console</button>`,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ChildComponent implements OnChanges {
@@ -118,10 +117,17 @@ export class ChildComponent implements OnChanges {
 
   // TODO: Migrate to use service to DI into this:
   // https://stackoverflow.com/a/52667101/4148154
-  constructor(private componentFactoryResolver: ComponentFactoryResolver) {
+  constructor(private componentFactoryResolver: ComponentFactoryResolver, private cd: ChangeDetectorRef) {
   }
 
   // This MUST be here, otherwise it won't call on parent directive
   ngOnChanges(changes: SimpleChanges): void {
+    setTimeout(() => {
+      this.cd.detectChanges();
+    }, 0);
+  }
+
+  printData() {
+    console.log(this.__data);
   }
 }
