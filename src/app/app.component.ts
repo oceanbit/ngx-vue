@@ -1,37 +1,38 @@
-/**
- * This shows us that you can access `this.` items from the tempate inside
- * that are exposed via a decorator
- */
+import {Component} from '@angular/core';
+import {ref} from '@vue/reactivity';
 
-import {ChangeDetectorRef, Component, OnInit, Pipe, PipeTransform} from '@angular/core';
-import {computed, ref, Ref} from '@vue/reactivity';
+// tslint:disable-next-line:typedef
+function Setup<SetupReturn, T extends new (...args: any[]) => any>(setupFn: (tick: () => void) => SetupReturn) {
+  const tick = () => {
+  };
 
-@Pipe({
-  name: 'some',
-  pure: false
-})
-export class SomePipe implements PipeTransform {
-  transform(value: Ref): any {
-    return value.value;
-  }
+  const data = ref(setupFn(tick));
+
+  return (constructor: T) => {
+    return class extends constructor {
+      data = data.value;
+    };
+  };
 }
 
+@Setup(() => {
+  const test = ref(12);
+
+  const addToPlus = (): void => {
+    test.value += 1;
+    // setTick();
+  };
+
+  return {
+    test,
+    addToPlus
+  };
+})
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  vm = getTest();
-
-  change(): void {
-    this.vm.test.value += 1;
-  }
-}
-
-function getTest() {
-  const test = ref(0);
-  const plusHundred = computed(() => test.value + 100);
-
-  return {test, plusHundred};
+  data: any;
 }
