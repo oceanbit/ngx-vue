@@ -1,0 +1,12 @@
+{
+  "name": "vuelar",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/common": "^11.0.5",
+    "@angular/core": "^11.0.5",
+    "@vue/reactivity": "^3.0.4"
+  },
+  "dependencies": {
+    "tslib": "^2.0.0"
+  }
+}
