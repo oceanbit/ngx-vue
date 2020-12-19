@@ -3,29 +3,35 @@
  * that are exposed via a decorator
  */
 
-import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, Pipe, PipeTransform} from '@angular/core';
+import {computed, ref, Ref} from '@vue/reactivity';
 
-function classDecorator<T extends new (...args: any[]) => {}>(
-  constructor: T
-): { new(): ({ newProperty: string; hello: string } & any); prototype: { newProperty: string; hello: string } } {
-  return class extends constructor {
-    newProperty = 'new property';
-    hello = 'override';
-  };
+@Pipe({
+  name: 'some',
+  pure: false
+})
+export class SomePipe implements PipeTransform {
+  transform(value: Ref): any {
+    return value.value;
+  }
 }
 
-@classDecorator
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit {
-  newProperty: never;
-  constructor(private cd: ChangeDetectorRef) {
-  }
+export class AppComponent {
+  vm = getTest();
 
-  ngOnInit(): void {
-    console.log(this);
+  change(): void {
+    this.vm.test.value += 1;
   }
+}
+
+function getTest() {
+  const test = ref(0);
+  const plusHundred = computed(() => test.value + 100);
+
+  return {test, plusHundred};
 }
