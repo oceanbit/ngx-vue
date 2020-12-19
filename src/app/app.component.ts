@@ -1,13 +1,16 @@
 import {ChangeDetectionStrategy, Component, ComponentFactoryResolver, Input} from '@angular/core';
-import {ref} from '@vue/reactivity';
+import {reactive, Ref, ref, UnwrapRef} from '@vue/reactivity';
 
-import 'reflect-metadata';
-import {getFilteredProperties, isFilter} from './isFilter';
+type CompClass = new (...args: any[]) => any;
+type CompClassInst<T extends CompClass> = keyof InstanceType<T>;
+type CompProp<T extends CompClass> = keyof CompClassInst<T>;
+type CompProps<T extends CompClass> = Record<CompClassInst<T>, CompClassInst<T>[CompProp<T>]>;
 
-const metadataKey = Symbol('Input');
+// From `@vue/reactivity`
+type UnwrapNestedRefs<T> = T extends Ref ? T : UnwrapRef<T>;
 
-// tslint:disable-next-line:typedef
-function Setup<SetupReturn, PropsT, T extends new (...args: any[]) => any>(setupFn: (props: PropsT, tick: () => void) => SetupReturn) {
+// tslint:disable-next-line:typedef max-line-length
+function Setup<T extends CompClass, SetupReturn = any>(setupFn: (props: UnwrapNestedRefs<CompProps<T>>, tick: () => void) => SetupReturn) {
   return (constructor: T) => {
     return class extends constructor {
       constructor(...args: any[]) {
@@ -17,17 +20,14 @@ function Setup<SetupReturn, PropsT, T extends new (...args: any[]) => any>(setup
 
         const properties = componentFactoryResolver.resolveComponentFactory(this.constructor as any);
 
-        type CompClass = keyof InstanceType<T>;
-        type CompProp = keyof CompClass;
-
         const inputProps = properties.inputs
           .map(input => input.propName)
           .reduce((curr, propName) => {
-            curr[propName as CompProp] = this[propName];
+            curr[propName as CompProp<T>] = this[propName];
             return curr;
-          }, {} as Record<CompClass, CompClass[CompProp]>);
+          }, {} as CompProps<T>);
 
-        console.log('properties', inputProps);
+        const inputPropsReactive = reactive(inputProps);
 
         // tslint:disable-next-line:variable-name
         const __data = ref({});
@@ -43,7 +43,7 @@ function Setup<SetupReturn, PropsT, T extends new (...args: any[]) => any>(setup
           // cd.detectChanges();
         };
 
-        __data.value = setupFn(this, detectChanges);
+        __data.value = setupFn(inputPropsReactive, detectChanges);
 
         detectChanges();
       }
@@ -51,7 +51,7 @@ function Setup<SetupReturn, PropsT, T extends new (...args: any[]) => any>(setup
   };
 }
 
-@Setup((props: { testing: string }, detectChanges) => {
+@Setup<typeof AppComponent>((props, detectChanges) => {
   const test = ref(12);
 
   const addToPlus = (): void => {
