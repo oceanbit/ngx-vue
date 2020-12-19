@@ -3,7 +3,7 @@ import {render} from '@testing-library/angular';
 import {screen, waitFor} from '@testing-library/dom';
 import '@testing-library/jest-dom';
 import {Setup} from './setup';
-import {ref, toRef} from '@vue/reactivity';
+import {computed, ref, toRef} from '@vue/reactivity';
 
 @Setup(() => {
   const other = ref('I am other');
@@ -49,18 +49,23 @@ it('should render absolute basic ref function return', async () => {
 @Setup((props) => {
   const other = toRef(props, 'hello');
 
+  const comp = computed(() => `${other?.value?.substr(0, 5) || ''}, Corbin`);
+
   return {
-    other
+    other,
+    comp
   };
 })
 @Component({
   selector: 'test-setup',
   template: `
     <p>{{other}}</p>
+    <p>{{comp}}</p>
   `
 })
 class PropsTestComponent {
   other: any;
+  comp: any;
 
   @Input() hello = '';
 
@@ -68,7 +73,7 @@ class PropsTestComponent {
   }
 }
 
-it('should render absolute basic prop ref return', async () => {
+it('should render prop ref return', async () => {
   render(PropsTestComponent, {
     componentProperties: {
       hello: 'Hello, world!'
@@ -77,6 +82,37 @@ it('should render absolute basic prop ref return', async () => {
 
   await waitFor(() => {
     const el = screen.getByText('Hello, world!');
+    expect(el).toBeInTheDocument();
+  });
+});
+
+it('should render computed prop return', async () => {
+  render(PropsTestComponent, {
+    componentProperties: {
+      hello: 'Hello, world!'
+    }
+  });
+
+  await waitFor(() => {
+    const el = screen.getByText('Hello, Corbin');
+    expect(el).toBeInTheDocument();
+  });
+});
+
+
+it('should render computed after re-render', async () => {
+  const comp = await render(PropsTestComponent, {
+    componentProperties: {
+      hello: 'Hello, world!'
+    }
+  });
+
+  comp.rerender({
+    hello: 'Bye~~, world!'
+  });
+
+  await waitFor(() => {
+    const el = screen.getByText('Bye~~, Corbin');
     expect(el).toBeInTheDocument();
   });
 });
