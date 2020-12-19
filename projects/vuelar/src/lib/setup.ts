@@ -28,7 +28,7 @@ export function Setup<SetupReturn, T extends CompClass>(setupFn: (props: any, ti
 
         this.__cd = args.find(arg => !!arg.detectChanges);
 
-        const properties = componentFactoryResolver.resolveComponentFactory(this.constructor as any);
+        const properties = componentFactoryResolver?.resolveComponentFactory(this.constructor as any) || {inputs: []};
 
         const inputProps = properties.inputs
           .map(input => input.propName)
@@ -49,13 +49,16 @@ export function Setup<SetupReturn, T extends CompClass>(setupFn: (props: any, ti
 
       // tslint:disable-next-line:typedef
       ngOnChanges(...args: any[]) {
-        super.ngOnChanges(...args);
+        if (super.ngOnChanges) {
+          super.ngOnChanges(...args);
+        }
         const changes: SimpleChanges = args[0];
         Object.keys(changes).forEach(changeKey => {
           this.__inputPropsReactive[changeKey] = changes[changeKey].currentValue;
         });
 
         this.__detectChanges();
+        if (!this.__cd) { return; }
         this.__cd.detectChanges();
       }
     };
