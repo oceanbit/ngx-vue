@@ -109,21 +109,21 @@
         }
       }
     },
-    "vuelar": {
+    "ngx-vue": {
       "projectType": "library",
-      "root": "projects/vuelar",
-      "sourceRoot": "projects/vuelar/src",
+      "root": "projects/ngx-vue",
+      "sourceRoot": "projects/ngx-vue/src",
       "prefix": "lib",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:ng-packagr",
           "options": {
-            "tsConfig": "projects/vuelar/tsconfig.lib.json",
-            "project": "projects/vuelar/ng-package.json"
+            "tsConfig": "projects/ngx-vue/tsconfig.lib.json",
+            "project": "projects/ngx-vue/ng-package.json"
           },
           "configurations": {
             "production": {
-              "tsConfig": "projects/vuelar/tsconfig.lib.prod.json"
+              "tsConfig": "projects/ngx-vue/tsconfig.lib.prod.json"
             }
           }
         },
@@ -134,8 +134,8 @@
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
             "tsConfig": [
-              "projects/vuelar/tsconfig.lib.json",
-              "projects/vuelar/tsconfig.spec.json"
+              "projects/ngx-vue/tsconfig.lib.json",
+              "projects/ngx-vue/tsconfig.spec.json"
             ],
             "exclude": [
               "**/node_modules/**"

@@ -8,7 +8,7 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import {computed, ref} from '@vue/reactivity';
-import {Setup} from '../../projects/vuelar/src/lib/setup';
+import {Setup} from '../../projects/ngx-vue/src/lib/setup';
 
 @Setup((_, detectChanges) => {
   const test = ref(12);
@@ -56,8 +56,6 @@ export class ChildComponent implements OnChanges {
   @Input() number = 0;
   newNum: any;
 
-  // TODO: Migrate to use service to DI into this:
-  // https://stackoverflow.com/a/52667101/4148154
   constructor(private componentFactoryResolver: ComponentFactoryResolver, private cd: ChangeDetectorRef) {
   }
 

@@ -1,5 +1,5 @@
 /*
- * Public API Surface of vuelar
+ * Public API Surface of ngx-vue
  */
 
 export * from './lib/setup';
