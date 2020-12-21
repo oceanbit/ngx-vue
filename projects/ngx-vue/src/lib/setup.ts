@@ -58,8 +58,16 @@ export function Setup<SetupReturn, T extends CompClass>(setupFn: (props: any, ti
         });
 
         this.__detectChanges();
-        if (!this.__cd) { return; }
+        if (!this.__cd) {
+          return;
+        }
         this.__cd.detectChanges();
+      }
+
+      ngOnDestroy(...args: any[]) {
+        if (super.ngOnDestroy) {
+          super.ngOnDestroy(...args);
+        }
       }
     };
   };
