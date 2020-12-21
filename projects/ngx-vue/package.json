@@ -1,6 +1,23 @@
 {
   "name": "ngx-vue",
+  "description": "Using Vue Composition API in Angular components.",
+  "license": "MIT",
   "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oceanbit-dev/ngx-vue.git"
+  },
+  "keywords": [
+    "vue",
+    "angular",
+    "vue-composition-api",
+    "vue-in-angular",
+    "reactivity"
+  ],
+  "bugs": {
+    "url": "https://github.com/oceanbit-dev/ngx-vue/issues"
+  },
+  "homepage": "https://github.com/oceanbit-dev/ngx-vue#readme",
   "peerDependencies": {
     "@angular/common": "^11.0.5",
     "@angular/core": "^11.0.5",

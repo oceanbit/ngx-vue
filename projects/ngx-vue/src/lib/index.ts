@@ -17,7 +17,7 @@ export { nextTick } from './nextTick';
 
 // redirect all APIs from @vue/reactivity
 export {
-  // computed,
+  computed,
   ComputedGetter,
   ComputedRef,
   ComputedSetter,
