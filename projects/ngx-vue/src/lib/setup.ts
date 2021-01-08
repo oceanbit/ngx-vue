@@ -74,7 +74,7 @@ export class SetupComp implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  ngOnInit(...args: any[]) {
+  ngOnInit() {
     /**
      * The `SetupComp` constructor is ran _before_ the constructor for the Angular component. Because of this,
      * the default values of the component will overwrite the Setup fn return values.
@@ -112,8 +112,7 @@ export class SetupComp implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  ngOnChanges(...args: any[]) {
-    const changes: SimpleChanges = args[0];
+  ngOnChanges(changes: SimpleChanges) {
     Object.keys(changes).forEach(changeKey => {
       this.__inputPropsReactive[changeKey] = changes[changeKey].currentValue;
     });
@@ -122,7 +121,7 @@ export class SetupComp implements OnInit, OnChanges, OnDestroy {
     this.cd.detectChanges();
   }
 
-  ngOnDestroy(...args: any[]) {
+  ngOnDestroy() {
     unmountInstance(this.__id);
   }
 }
