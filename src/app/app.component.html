@@ -1,5 +1,5 @@
 <h1>{{test}}</h1>
 
-<app-child [number]="test"></app-child>
+<app-child [number]="test" *ngIf="showComp"></app-child>
 
 <button (click)="addToPlus()">Change number</button>

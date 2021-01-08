@@ -3,19 +3,15 @@ import {
   ChangeDetectorRef,
   Component,
   ComponentFactoryResolver,
-  Input,
-  OnChanges,
-  SimpleChanges,
+  Input, OnDestroy,
 } from '@angular/core';
-import {computed, ref} from '@vue/reactivity';
-import {Setup} from '../../projects/ngx-vue/src/lib/setup';
+import {Setup, SetupComp, computed, ref} from '../../projects/ngx-vue/src/public-api';
 
-@Setup((_, detectChanges) => {
+@Setup((_) => {
   const test = ref(12);
 
   const addToPlus = (): void => {
     test.value += 1;
-    detectChanges();
   };
 
   return {
@@ -29,12 +25,17 @@ import {Setup} from '../../projects/ngx-vue/src/lib/setup';
   styleUrls: ['./app.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AppComponent {
+export class AppComponent extends SetupComp {
   test: any;
   addToPlus: any;
 
   // MUST have these two items in your constructor, sadly :(
   constructor(private componentFactoryResolver: ComponentFactoryResolver, private cd: ChangeDetectorRef) {
+    super();
+  }
+
+  get showComp(): boolean {
+    return !!(this.test % 2);
   }
 }
 
@@ -52,14 +53,11 @@ export class AppComponent {
   template: `<h1>{{newNum}}</h1> `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ChildComponent implements OnChanges {
+export class ChildComponent extends SetupComp implements OnDestroy {
   @Input() number = 0;
   newNum: any;
 
   constructor(private componentFactoryResolver: ComponentFactoryResolver, private cd: ChangeDetectorRef) {
-  }
-
-  // This MUST be here, otherwise it won't call on parent directive
-  ngOnChanges(changes: SimpleChanges): void {
+    super();
   }
 }

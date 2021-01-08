@@ -1,23 +1,19 @@
-export { Setup } from './setup';
-// export { defineComponent } from './defineComponent'
-// export { watch, watchEffect } from './watch'
-// export { computed } from './computed'
-// export { createSetup } from './createSetup'
-// export { getCurrentInstance } from './component'
-export { nextTick } from './nextTick';
-// export * from './mock'
-// export {
-//   onMounted,
-//   onBeforeMount,
-//   onUnmounted,
-//   onUpdated,
-//   onBeforeUnmount,
-//   onBeforeUpdate,
-// } from './lifecycle'
+export {Setup, SetupComp} from './setup';
+export {watch, watchEffect} from './watch';
+export {computed} from './computed';
+export {getCurrentInstance} from './component';
+export {nextTick} from './nextTick';
+export {
+  onMounted,
+  onBeforeMount,
+  onUnmounted,
+  onUpdated,
+  onBeforeUnmount,
+  onBeforeUpdate,
+} from './lifecycle';
 
 // redirect all APIs from @vue/reactivity
 export {
-  computed,
   ComputedGetter,
   ComputedRef,
   ComputedSetter,

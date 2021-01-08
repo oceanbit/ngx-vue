@@ -5,17 +5,17 @@ import {
   WritableComputedRef,
   ComputedGetter,
 } from '@vue/reactivity';
-// import { recordInstanceBoundEffect } from './component'
+import { recordInstanceBoundEffect } from './component';
 
 export function computed<T>(getter: ComputedGetter<T>): ComputedRef<T>;
 export function computed<T>(
   options: WritableComputedOptions<T>
 ): WritableComputedRef<T>;
-// tslint:disable-next-line:typedef
+
 export function computed<T>(
   getterOrOptions: ComputedGetter<T> | WritableComputedOptions<T>,
 ) {
   const c = _computed(getterOrOptions as any);
-  // recordInstanceBoundEffect(c.effect)
+  recordInstanceBoundEffect(c.effect);
   return c as any;
 }
