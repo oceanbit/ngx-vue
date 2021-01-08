@@ -1,4 +1,4 @@
-export {Setup, SetupComp} from './setup';
+export * from './setup';
 export {watch, watchEffect} from './watch';
 export {computed} from './computed';
 export {getCurrentInstance} from './component';
