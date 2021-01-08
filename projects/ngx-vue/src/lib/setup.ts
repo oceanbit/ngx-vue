@@ -15,8 +15,7 @@ import {watch} from './watch';
 export type SetupReturn<T extends new (...args: any) => any> = Partial<Record<keyof InstanceType<T>, any>>;
 
 export declare interface OnSetup {
-  // ngOnSetup<T>(props: this): SetupReturn<T>;
-  ngOnSetup<T>(props: this): any;
+  ngOnSetup(props: this): any;
 }
 
 @Component({
@@ -24,25 +23,6 @@ export declare interface OnSetup {
 })
 // tslint:disable-next-line:component-class-suffix
 export class SetupComp implements OnInit, OnChanges, OnDestroy {
-  __id = 0;
-  __inputPropsReactive: Record<string, any> = {};
-  __data: any;
-
-  __setVariables = (data: any) => {
-    Object.keys(data).forEach(key => {
-      // @ts-ignore
-      this[key] = data[key];
-    });
-  };
-
-  __detectChanges = () => {
-    this.__setVariables(this.__data.value);
-    if (this.afterConstructor) {
-      this.cd.detectChanges();
-    }
-  }
-
-  afterConstructor = false;
 
   constructor(private cd: ChangeDetectorRef, private componentFactoryResolver: ComponentFactoryResolver) {
     const properties = componentFactoryResolver?.resolveComponentFactory(this.constructor as any) || {inputs: []};
@@ -73,6 +53,25 @@ export class SetupComp implements OnInit, OnChanges, OnDestroy {
 
     this.__detectChanges();
     this.afterConstructor = true;
+  }
+  __id = 0;
+  __inputPropsReactive: Record<string, any> = {};
+  __data: any;
+
+  afterConstructor = false;
+
+  __setVariables = (data: any) => {
+    Object.keys(data).forEach(key => {
+      // @ts-ignore
+      this[key] = data[key];
+    });
+  };
+
+  __detectChanges = () => {
+    this.__setVariables(this.__data.value);
+    if (this.afterConstructor) {
+      this.cd.detectChanges();
+    }
   }
 
   ngOnInit(...args: any[]) {

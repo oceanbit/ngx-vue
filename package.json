@@ -11,6 +11,8 @@
     "copy:readme": "copyfiles ./README.md ./dist/ngx-vue",
     "test": "jest --coverage --config ./jest.config.js",
     "test:watch": "jest -o --watch --config ./jest.config.js",
+    "// ": "https://github.com/angular/angular-cli/issues/17110#issuecomment-592349783",
+    "postinstall": "ngcc --properties main",
     "lint": "ng lint",
     "e2e": "ng e2e"
   },

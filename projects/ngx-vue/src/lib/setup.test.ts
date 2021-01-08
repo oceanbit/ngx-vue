@@ -2,16 +2,9 @@ import {ChangeDetectorRef, Component, ComponentFactoryResolver, Input} from '@an
 import {render} from '@testing-library/angular';
 import {screen, waitFor} from '@testing-library/dom';
 import '@testing-library/jest-dom';
-import {Setup} from './setup';
+import {OnSetup, SetupComp} from './setup';
 import {computed, ref, toRef} from '@vue/reactivity';
 
-@Setup(() => {
-  const other = ref('I am other');
-  return {
-    test: 'Hello, world!',
-    other
-  };
-})
 @Component({
   selector: 'test-setup',
   template: `
@@ -19,11 +12,20 @@ import {computed, ref, toRef} from '@vue/reactivity';
     <p>{{other}}</p>
   `
 })
-class TestComponent {
-  test: any;
-  other: any;
+class TestComponent extends SetupComp implements OnSetup {
+  test!: string;
+  other!: string;
 
-  constructor() {
+  ngOnSetup(props: this): any {
+    const other = ref('I am other');
+    return {
+      test: 'Hello, world!',
+      other
+    };
+  }
+
+  constructor(cd: ChangeDetectorRef, componentFactoryResolver: ComponentFactoryResolver) {
+    super(cd, componentFactoryResolver);
   }
 }
 
@@ -45,17 +47,6 @@ it('should render absolute basic ref function return', async () => {
   });
 });
 
-
-@Setup((props) => {
-  const other = toRef(props, 'hello');
-
-  const comp = computed(() => `${other?.value?.substr(0, 5) || ''}, Corbin`);
-
-  return {
-    other,
-    comp
-  };
-})
 @Component({
   selector: 'test-setup',
   template: `
@@ -63,13 +54,25 @@ it('should render absolute basic ref function return', async () => {
     <p>{{comp}}</p>
   `
 })
-class PropsTestComponent {
-  other: any;
-  comp: any;
+class PropsTestComponent extends SetupComp implements OnSetup {
+  other!: string;
+  comp!: string;
 
   @Input() hello = '';
 
-  constructor(private componentFactoryResolver: ComponentFactoryResolver, private cd: ChangeDetectorRef) {
+  ngOnSetup(props: this) {
+    const other = toRef(props, 'hello');
+
+    const comp = computed(() => `${other?.value?.substr(0, 5) || ''}, Corbin`);
+
+    return {
+      other,
+      comp
+    };
+  }
+
+  constructor(cd: ChangeDetectorRef, componentFactoryResolver: ComponentFactoryResolver) {
+    super(cd, componentFactoryResolver);
   }
 }
 
