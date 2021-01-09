@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, ComponentFactoryResolver, Input, OnDestroy} from '@angular/core';
+import {ChangeDetectorRef, Component, ComponentFactoryResolver, Input} from '@angular/core';
 import {fireEvent, render} from '@testing-library/angular';
 import {screen, waitFor} from '@testing-library/dom';
 import '@testing-library/jest-dom';
@@ -210,7 +210,7 @@ class LifecycleTestComponent extends SetupComp implements OnSetup {
     onMounted(() => onMountedJestFn());
     onBeforeUpdate(() => onBeforeUpdateJestFn());
     onUpdated(() => onUpdatedJestFn());
-    // onBeforeUnmount(() => onBeforeUnmountJestFn());
+    onBeforeUnmount(() => onBeforeUnmountJestFn());
     onUnmounted(() => onUnmountedJestFn());
 
     return {
@@ -226,7 +226,7 @@ class LifecycleTestComponent extends SetupComp implements OnSetup {
 
 
 it('should run the mounted lifecycles', async () => {
-  render(LifecycleTestComponent);
+  await render(LifecycleTestComponent);
 
   await waitFor(() => {
     expect(onMountedJestFn).toBeCalled();
@@ -264,9 +264,8 @@ class DestroyTestComponent {
   show = true;
 }
 
-// TODO: Get this working
-it.skip('should run the unmounted lifecycles', async () => {
-  render(DestroyTestComponent, {
+it('should run the unmounted lifecycles', async () => {
+  await render(DestroyTestComponent, {
     declarations: [LifecycleTestComponent]
   });
 
