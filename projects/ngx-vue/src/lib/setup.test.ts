@@ -21,17 +21,25 @@ import {
   template: `
     <p>{{test}}</p>
     <p>{{other}}</p>
+    <p>{{helloProp}}</p>
   `
 })
 class TestComponent extends SetupComp implements OnSetup {
   test!: string;
   other!: string;
+  helloProp!: string;
+
+  @Input() hello = '';
 
   ngOnSetup(props: this): any {
     const other = ref('I am other');
+
+    const helloProp = toRef(props, 'hello');
+
     return {
       test: 'Hello, world!',
-      other
+      other,
+      helloProp
     };
   }
 
@@ -40,7 +48,7 @@ class TestComponent extends SetupComp implements OnSetup {
   }
 }
 
-it('should render absolute basic setup function return', async () => {
+it('should render basic setup function return', async () => {
   render(TestComponent);
 
   await waitFor(() => {
@@ -58,221 +66,15 @@ it('should render absolute basic ref function return', async () => {
   });
 });
 
-const watchJestFn = jest.fn();
-const watchEffectJestFn = jest.fn();
-const onMountedJestFn = jest.fn();
-const onBeforeMountJestFn = jest.fn();
-const onUnmountedJestFn = jest.fn();
-const onUpdatedJestFn = jest.fn();
-const onBeforeUnmountJestFn = jest.fn();
-const onBeforeUpdateJestFn = jest.fn();
-
-beforeEach(() => {
-  watchJestFn.mockClear();
-  watchEffectJestFn.mockClear();
-  onMountedJestFn.mockClear();
-  onBeforeMountJestFn.mockClear();
-  onUnmountedJestFn.mockClear();
-  onUpdatedJestFn.mockClear();
-  onBeforeUnmountJestFn.mockClear();
-  onBeforeUpdateJestFn.mockClear();
-});
-
-@Component({
-  selector: 'test-setup',
-  template: `
-    <p>{{other}}</p>
-    <p>{{comp}}</p>
-  `
-})
-class PropsTestComponent extends SetupComp implements OnSetup {
-  other!: string;
-  comp!: string;
-
-  @Input() hello = '';
-
-  ngOnSetup(props: this) {
-    const other = toRef(props, 'hello');
-
-    const comp = computed(() => `${other?.value?.substr(0, 5) || ''}, Corbin`);
-
-    watch(comp, () => watchJestFn());
-
-    watchEffect(() => {
-      watchEffectJestFn(comp);
-    });
-
-    return {
-      other,
-      comp
-    };
-  }
-
-  constructor(cd: ChangeDetectorRef, componentFactoryResolver: ComponentFactoryResolver) {
-    super(cd, componentFactoryResolver);
-  }
-}
-
 it('should render prop ref return', async () => {
-  render(PropsTestComponent, {
+  render(TestComponent, {
     componentProperties: {
-      hello: 'Hello, world!'
+      hello: 'Hi from OceanBit'
     }
   });
 
   await waitFor(() => {
-    const el = screen.getByText('Hello, world!');
+    const el = screen.getByText('Hi from OceanBit');
     expect(el).toBeInTheDocument();
-  });
-});
-
-it('should render computed prop return', async () => {
-  render(PropsTestComponent, {
-    componentProperties: {
-      hello: 'Hello, world!'
-    }
-  });
-
-  await waitFor(() => {
-    const el = screen.getByText('Hello, Corbin');
-    expect(el).toBeInTheDocument();
-  });
-});
-
-
-it('should render computed after re-render', async () => {
-  const comp = await render(PropsTestComponent, {
-    componentProperties: {
-      hello: 'Hello, world!'
-    }
-  });
-
-  comp.rerender({
-    hello: 'Bye~~, world!'
-  });
-
-  await waitFor(() => {
-    const el = screen.getByText('Bye~~, Corbin');
-    expect(el).toBeInTheDocument();
-  });
-});
-
-it('watch should work as-expected', async () => {
-  const comp = await render(PropsTestComponent, {
-    componentProperties: {
-      hello: 'Hello, world!'
-    }
-  });
-
-  comp.rerender({
-    hello: 'Bye~~, world!'
-  });
-
-  await waitFor(() => {
-    expect(watchJestFn).toBeCalled();
-  });
-});
-
-// TODO: Fix this test
-it.skip('watcheffect should work as-expected', async () => {
-  const comp = await render(PropsTestComponent, {
-    componentProperties: {
-      hello: 'Hello, world!'
-    }
-  });
-
-  comp.rerender({
-    hello: 'Bye~~, world!'
-  });
-
-  await waitFor(() => {
-    expect(watchEffectJestFn).toBeCalled();
-  });
-});
-
-
-@Component({
-  selector: 'lifecycle-setup',
-  template: `
-  `
-})
-class LifecycleTestComponent extends SetupComp implements OnSetup {
-  @Input() hello = '';
-
-  ngOnSetup(props: this) {
-    const other = toRef(props, 'hello');
-
-    const comp = computed(() => `${other?.value?.substr(0, 5) || ''}, Corbin`);
-
-    watch(comp, () => watchJestFn());
-
-    onBeforeMount(() => onBeforeMountJestFn());
-    onMounted(() => onMountedJestFn());
-    onBeforeUpdate(() => onBeforeUpdateJestFn());
-    onUpdated(() => onUpdatedJestFn());
-    onBeforeUnmount(() => onBeforeUnmountJestFn());
-    onUnmounted(() => onUnmountedJestFn());
-
-    return {
-      other,
-      comp
-    };
-  }
-
-  constructor(cd: ChangeDetectorRef, componentFactoryResolver: ComponentFactoryResolver) {
-    super(cd, componentFactoryResolver);
-  }
-}
-
-
-it('should run the mounted lifecycles', async () => {
-  await render(LifecycleTestComponent);
-
-  await waitFor(() => {
-    expect(onMountedJestFn).toBeCalled();
-    expect(onBeforeMountJestFn).toBeCalled();
-  });
-});
-
-
-it('should run the updated lifecycles', async () => {
-  const comp = await render(LifecycleTestComponent, {
-    componentProperties: {
-      hello: 'Hello, world!'
-    }
-  });
-
-  comp.rerender({
-    hello: 'Bye~~, world!'
-  });
-
-  await waitFor(() => {
-    expect(onBeforeUpdateJestFn).toBeCalled();
-    expect(onUpdatedJestFn).toBeCalled();
-  });
-});
-
-
-@Component({
-  selector: 'destroy-comp',
-  template: `
-    <lifecycle-setup *ngIf="show"></lifecycle-setup>
-    <button (click)="show = false">Hide</button>
-  `
-})
-class DestroyTestComponent {
-  show = true;
-}
-
-it('should run the unmounted lifecycles', async () => {
-  await render(DestroyTestComponent, {
-    declarations: [LifecycleTestComponent]
-  });
-
-  fireEvent.click(screen.getByText('Hide'));
-
-  await waitFor(() => {
-    expect(onBeforeUnmountJestFn).toBeCalled();
-    expect(onUnmountedJestFn).toBeCalled();
   });
 });
