@@ -5,7 +5,7 @@ import {
   ComponentFactoryResolver,
   Input, OnDestroy,
 } from '@angular/core';
-import {OnSetup, SetupComp, computed, ref, SetupReturn} from '../../projects/ngx-vue/src/public-api';
+import {OnSetup, SetupComp, computed, ref} from '../../projects/ngx-vue/src/public-api';
 
 @Component({
   selector: 'app-root',
@@ -18,7 +18,7 @@ export class AppComponent extends SetupComp implements OnSetup {
   addToPlus!: Function;
 
   // MUST have these two items in your constructor, sadly :(
-  constructor(componentFactoryResolver: ComponentFactoryResolver, cd: ChangeDetectorRef) {
+  constructor(cd: ChangeDetectorRef, componentFactoryResolver: ComponentFactoryResolver) {
     super(cd, componentFactoryResolver);
   }
 

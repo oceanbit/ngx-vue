@@ -28,27 +28,8 @@ import {
   Input,
   OnChanges
 } from '@angular/core';
-import {computed, ref, Setup} from 'ngx-vue';
+import {computed, ref, SetupComp, OnSetup} from 'ngx-vue';
 
-@Setup((props, detectChanges) => {
-  const helloProp = toRef(props, 'hello');
-
-  const helloMsg = computed(() => `${helloProp?.value?.substr(0, 5) || ''}, World`);
-
-  const mainNumber = ref(12);
-
-  const addToPlus = (): void => {
-    mainNumber.value += 1;
-    // This manual change detection is required currently, but soon will not be
-    detectChanges();
-  };
-
-  return {
-    helloMsg,
-    mainNumber,
-    addToPlus
-  };
-})
 @Component({
   selector: 'test-setup',
   template: `
@@ -56,7 +37,7 @@ import {computed, ref, Setup} from 'ngx-vue';
     <p>{{comp}}</p>
   `
 })
-class TestComponent implements OnChanges {
+class TestComponent implements OnSetup extends SetupComp {
     // In order to get typechecking working, defaults like these are required
     // Don't worry - they'll be overwritten by the `@Setup` return
     helloMsg: string = '';
@@ -66,28 +47,61 @@ class TestComponent implements OnChanges {
 
     // These two items in your constructor are required, currently
     // https://github.com/oceanbit-dev/ngx-vue/issues/1
-    constructor(private componentFactoryResolver: ComponentFactoryResolver, private cd: ChangeDetectorRef) {
+    constructor(cd: ChangeDetectorRef, componentFactoryResolver: ComponentFactoryResolver) {
+        super(cd, componentFactoryResolver)
     }
 
-    // This is required, even if empty
-    ngOnChanges() {}
+    ngOnSetup(props) {
+      const helloProp = toRef(props, 'hello');
+  
+      const helloMsg = computed(() => `${helloProp?.value?.substr(0, 5) || ''}, World`);
+  
+      const mainNumber = ref(12);
+  
+      const addToPlus = (): void => {
+        mainNumber.value += 1;
+        // This manual change detection is required currently, but soon will not be
+        detectChanges();
+      };
+  
+      return {
+        helloMsg,
+        mainNumber,
+        addToPlus
+      };
+    }
 }
 ```
 
 ## Using Vue's Libraries
 
-Currently, *no, you cannot.* We're actively working on this feature, however and expect to have this functionality ready soon. Here's some insight into our current progress:
+*Yes, you can!* Before you start, you need set alias in your build tool in order to redirect some apis from `vue` to `ngx-vue` to avoid memory leaks.
 
-### Missing features:
+#### Aliasing
 
-- [ ] Automatic refresh after data is changed
-- [ ] Computed\* (\*this currently works, but has potential memory leaks)
-- [ ] Watch
-- [ ] WatchEffect
-- [ ] Lifecycle Methods
-  - [ ] onMounted
-  - [ ] onBeforeMount
-  - [ ] onUnmounted
-  - [ ] onUpdated
-  - [ ] onBeforeUnmount
-  - [ ] onBeforeUpdate
+<details>
+<summary>Angular CLI</summary><br>
+Unfortunately, there is no way to alias a library from within `node_modules` using Angular CLI itself. 
+
+Currently, you have to utilize an [Angular Custom Webpack Builder](https://github.com/just-jeb/angular-builders/tree/10.x.x/packages/custom-webpack) and follow
+the webpack instructions
+</details>
+
+<details>
+<summary>Webpack</summary><br>
+
+Add following code to your webpack config
+
+```js
+const config = { 
+  /* ... */
+  resolve: { 
+    alias: { 
+      'vue': 'ngx-vue',
+      '@vue/runtime-dom': 'ngx-vue',
+    },
+  }
+}
+```
+
+</details>
