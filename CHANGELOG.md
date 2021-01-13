@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.1](https://github.com/oceanbit-dev/ngx-vue/compare/v0.1.0...v0.1.1) (2021-01-13)
+
+
+### Bug Fixes
+
+* fixed watchEffect not working as-expected ([558d218](https://github.com/oceanbit-dev/ngx-vue/commit/558d218dc29301bfcef40299d266db5ea840e694))
+
 ## [0.1.0](https://github.com/oceanbit-dev/ngx-vue/compare/v0.0.2...v0.1.0) (2021-01-09)
 
 
