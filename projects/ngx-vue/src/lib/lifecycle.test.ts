@@ -5,11 +5,7 @@ import '@testing-library/jest-dom';
 import {
   OnSetup,
   SetupComp,
-  computed,
-  ref,
   toRef,
-  watch,
-  watchEffect,
   onMounted,
   onBeforeMount,
   onUnmounted,

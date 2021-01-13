@@ -70,8 +70,7 @@ it('watch should work as-expected', async () => {
   });
 });
 
-// TODO: Fix this test
-it.skip('watcheffect should work as-expected', async () => {
+it('watcheffect should work as-expected', async () => {
   const comp = await render(PropsTestComponent, {
     componentProperties: {
       hello: 'Hello, world!'
